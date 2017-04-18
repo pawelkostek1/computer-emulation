@@ -47,9 +47,9 @@ class ALU {
 };
 */
 ///////////////////////////////////////////////////////////////////////////
-struct CORE{
+class CORE{
 	
-		
+	public:
 	// Define ALU submodule
 	//ALU alu;
 	

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <bitset>
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////
@@ -9,9 +10,9 @@ enum OpCodes
 };
 
 ///////////////////////////////////////////////////////////////////////////
-struct CORE{
+class CORE{
 	
-		
+	public:
 	// Define ALU submodule
 	//ALU alu;
 	
@@ -23,6 +24,9 @@ struct CORE{
 
 	// Declare memory of size 32 words, each with 8 bits length
 	signed char mem[32];
+	
+	// Responsible for running the core
+	bool Run;
 	
 	void runLOAD()
 	{
@@ -95,7 +99,7 @@ struct CORE{
 				break;
 			case 7:
 				runJUMP();
-				//RunCore = false;
+				Run = false;
 				break;
 		}
 	}
@@ -136,12 +140,17 @@ int main()
 	core.PC = 0;
 	core.AC = 0;
 	core.IR = 0;
-
-	bool RunCore = true;
+	
+	for (int i=0; i<32; i++){
+		bitset<8>x(core.mem[i]);
+		cout<<x<<endl;
+	}
 	cout<<(int)core.mem[19]<<endl;
 	
+	core.Run = true;
+	
 	// Run computer infinitely
-	while(RunCore)
+	while(core.Run)
 	{	
 		core.run_cycle();
 	}
