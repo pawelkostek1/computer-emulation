@@ -5,12 +5,12 @@
 
 using namespace std;
 
-void CORE::load_prog()
+void CORE::load_prog(char* file)
 {
 	// Load the program into memory from file
 	unsigned int line;
 	int i = 0;
-	ifstream myfile ("binary_prog.txt");
+	ifstream myfile (file);
 	if (myfile.is_open())
 	{
 		for(int i=1;i<=32;i++){

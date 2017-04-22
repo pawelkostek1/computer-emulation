@@ -23,7 +23,7 @@ class CORE{
 	// Responsible for running the core
 	bool Run;
 	
-	void load_prog();
+	void load_prog(char* file);
 	
 	void init_reg();
 	

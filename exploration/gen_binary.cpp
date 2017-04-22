@@ -10,6 +10,7 @@ enum OpCodes
 
 int main()
 {
+	// Generate an assembly file for comp_emu_v5
 	char mem[32] = {0};
 	
 	mem[0] = (LOAD<<5) | 16; // Load A located at 16th memory location

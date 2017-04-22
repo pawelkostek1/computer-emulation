@@ -8,48 +8,51 @@ typedef unsigned char BYTE;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// INSTRUCTION SET ARCHITECTURE //////////////////////////////////
 //
-//                                      ||15|14|13||12||11|10| 9| 8|| 7| 6| 5| 4|| 3| 2| 1| 0||
-// REGISTER FORMAT                      ||  OPCODE|| C||   OPERAND1||   OPERAND2||   OPERAND3||
-// JUMP FORMAT                          ||  OPCODE|| C||                         JUMP_ADDRESS||
+//                                ||15|14|13||12||11|10| 9| 8|| 7| 6| 5| 4|| 3| 2| 1| 0||
+// REGISTER FORMAT                ||  OPCODE|| C||   OPERAND1||   OPERAND2||   OPERAND3||
+// JUMP FORMAT                    ||  OPCODE|| C||                         JUMP_ADDRESS||
 //
-// LD load a word                       || 0| 0| 0|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
-// ST store a word                      || 0| 0| 1|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// LD   -> LOAD A WORD            || 0| 0| 0|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 //
-// ADD with conrol bit C = 0            || 0| 1| 0|| 0||   ADDRESS1||   ADDRESS2||   ADDRESS3||
-// ADD with conrol bit C = 1            || 0| 1| 0|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// ST   -> STORE A WORD           || 0| 0| 1|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 //
-// AND with conrol bit C = 0            || 0| 1| 1|| 0||   ADDRESS1||   ADDRESS2||   ADDRESS3||
-// AND with conrol bit C = 1            || 0| 1| 1|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// ADD  -> ADD                    || 0| 1| 0|| 0||   ADDRESS1||   ADDRESS2||   ADDRESS3||
+// ADDI -> ADD IMMEDIATE          || 0| 1| 0|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 //
-// NOT bitwise complement               || 1| 0| 0|| 0||   ADDRESS1||   ADDRESS2|| 1| 1| 1| 1||
+// AND  -> AND                    || 0| 1| 1|| 0||   ADDRESS1||   ADDRESS2||   ADDRESS3||
+// ANDI -> AND IMMEDIATE          || 0| 1| 1|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 //
-// SHF with C = 0 -> RIGHT SHIFT        || 1| 0| 1|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
-// SHF with C = 1 -> LEFT SHIFT         || 1| 0| 1|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// NOT -> BITWISE COMPLEMENT      || 1| 0| 0|| 0||   ADDRESS1||   ADDRESS2|| 0| 0| 0| 0||
+// NOTR -> NOT RUN (STOP CORE)    || 1| 0| 0|| 1|| 0| 0| 0| 0|| 0| 0| 0| 0|| 0| 0| 0| 0||
 //
-// BR with C = 0 -> BRANCH ON EQUAL     || 1| 1| 0|| C||   OPERAND1||   OPERAND2||   OPERAND3||
-// BR with C = 1 -> BRANCH ON LESS THAN || 1| 1| 0|| C||   OPERAND1||   OPERAND2||  IMMEDIATE||
+// RSHF -> RIGHT SHIFT            || 1| 0| 1|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// LSHF -> LEFT SHIFT             || 1| 0| 1|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 //
-// JMP with C = 0 -> JUMP REGISTER      || 1| 1| 1|| 0||   ADDRESS1|| 0| 0| 0| 0|| 0| 0| 0| 0||
-// JMP with C = 1 -> JUMP               || 1| 1| 1|| 1||                         JUMP_ADDRESS||
+// BRE  -> BRANCH ON EQUAL        || 1| 1| 0|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// BRMT -> BRANCH ON MORE THAN    || 1| 1| 0|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+//
+// JMPR -> JUMP REGISTER          || 1| 1| 1|| 0||   ADDRESS1|| 0| 0| 0| 0|| 0| 0| 0| 0||
+// JMP  -> JUMP                   || 1| 1| 1|| 1||                         JUMP_ADDRESS||
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// REGISTER TOPOLOGY /////////////////////////////////////
 // 
-// |NAME|NUMBER|             COMMENT              |
-// | $at|     0|               Assembler Temporary|
-// | $vr|     1|     Value return by the procedure|
-// | $ag|   2-4|  Argument passed to the procedure|
-// | $tm|  5-13|                   Temporary value|
-// | $sp|    14|                     Stack pointer|
-// | $ra|    15| Return address from the procedure|
+// |   NAME   |NUMBER|              COMMENT             |
+// |       $AT|     0|               Assembler Temporary|
+// |       $VR|     1|     Value Return by the procedure|
+// | $AG0-$AG3|   2-4|  ArGument passed to the procedure|
+// | $TM0-$TM7|  5-12|                   TeMporary value|
+// |       $GP|    13|                    Global Pointer|
+// |       $SP|    14|                     Stack Pointer|
+// |       $RA|    15| Return Address from the procedure|
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// MEMORY CONVENTION /////////////////////////////////////
 // 
 // |STARTING ADDRESS|                        COMMENT                         |
-// |          0x0000|     Space dedicated to program running on the processor|
-// |          0x8000|  Space for storing static variables used by the program|
-// |          0xC000| Space for storing dynamic variables used by the program|
+// |           0x000|     Space dedicated to program running on the processor|
+// |           0x100|  Space for storing static variables used by the program|
+// |           0x180| Space for storing dynamic variables used by the program|
 // 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////// OPCODES /////////////////////////////////////////////
@@ -62,12 +65,13 @@ enum OpCodes
 //////////////////////////////////////// CLASS CORE ///////////////////////////////////////////
 class CORE{
 	
-	// Declare registers
+	// Declare program counter and instruction register.
 	WORD PC, IR;
+	// Declare 16-bit registers.
 	WORD reg[16];
 	
-	// Declare 16 kbytes memory (65536 words), each with 16-bits length.
-	WORD mem[0x10000];
+	// Declare 1 kbyte of memory (512 words), each with 16-bits length.
+	WORD mem[512];
 	
 	// Declare  variables used for instruction decoding.
 	WORD OPCODE, C, OPERAND1, OPERAND2, OPERAND3, JUMP_ADDRESS;
@@ -77,7 +81,10 @@ class CORE{
 		bool Run;
 		
 		// Function that loads the program from the file into into the memory.
-		void load_prog();
+		void load(char* file);
+		
+		// Function that saves the memory state after program execution into the text file.
+		void save();
 		
 		// This function initializes registers 
 		// and set the Run variable to true to enable cpu.
