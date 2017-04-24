@@ -25,19 +25,19 @@ typedef unsigned char BYTE;
 // NOT -> BITWISE COMPLEMENT      || 1| 0| 0|| 0||   ADDRESS1||   ADDRESS2|| 0| 0| 0| 0||
 // NOTR -> NOT RUN (STOP CORE)    || 1| 0| 0|| 1|| 0| 0| 0| 0|| 0| 0| 0| 0|| 0| 0| 0| 0||
 //
-// RSHF -> RIGHT SHIFT            || 1| 0| 1|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
-// LSHF -> LEFT SHIFT             || 1| 0| 1|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
+// RSHF -> RIGHT SHIFT            || 1| 0| 1|| 0||   ADDRESS1||   ADDRESS2||     OFFSET||
+// LSHF -> LEFT SHIFT             || 1| 0| 1|| 1||   ADDRESS1||   ADDRESS2||     OFFSET||
 //
 // BRE  -> BRANCH ON EQUAL        || 1| 1| 0|| 0||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 // BRMT -> BRANCH ON MORE THAN    || 1| 1| 0|| 1||   ADDRESS1||   ADDRESS2||  IMMEDIATE||
 //
-// JMPR -> JUMP REGISTER          || 1| 1| 1|| 0||   ADDRESS1|| 0| 0| 0| 0|| 0| 0| 0| 0||
-// JMP  -> JUMP                   || 1| 1| 1|| 1||                         JUMP_ADDRESS||
+// JMPR -> JUMP TO REGISTER       || 1| 1| 1|| 0||   ADDRESS1|| 0| 0| 0| 0|| 0| 0| 0| 0||
+// JMP  -> JUMP TO ADDRESS        || 1| 1| 1|| 1||                         JUMP_ADDRESS||
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// REGISTER TOPOLOGY /////////////////////////////////////
 // 
-// |   NAME   |NUMBER|              COMMENT             |
+// |   NAME   |NUMBER|           DESCRIPTION            |
 // |       $AT|     0|               Assembler Temporary|
 // |       $VR|     1|     Value Return by the procedure|
 // | $AG0-$AG3|   2-4|  ArGument passed to the procedure|
@@ -49,7 +49,7 @@ typedef unsigned char BYTE;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// MEMORY CONVENTION /////////////////////////////////////
 // 
-// |STARTING ADDRESS|                        COMMENT                         |
+// |STARTING ADDRESS|                      DESCRIPTION                       |
 // |           0x000|     Space dedicated to program running on the processor|
 // |           0x100|  Space for storing static variables used by the program|
 // |           0x180| Space for storing dynamic variables used by the program|

@@ -5,6 +5,7 @@
 #include "core.h"
 
 using namespace std;
+//#define DEBUG
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////// CLASS FUNCTIONS //////////////////////////////////////
@@ -126,8 +127,11 @@ void CORE::decode()
 	OPERAND2 = BIT_RANGE(IR, 7, 4);
 	OPERAND3 = BIT_RANGE(IR, 3, 0);
 	JUMP_ADDRESS = BIT_RANGE(IR, 11, 0);
-	//cout<<"Decoded instruction: "<<OPCODE<<" "<<C<<" "<<OPERAND1<<" "<<OPERAND2<<" "<<OPERAND3<<" "<<JUMP_ADDRESS<<endl;
-}
+	
+	#ifdef DEBUG
+		cout<<"Decoded instruction: "<<OPCODE<<" "<<C<<" "<<OPERAND1<<" "<<OPERAND2<<" "<<OPERAND3<<" "<<JUMP_ADDRESS<<endl;
+	#endif
+	}
 // Define execute step
 void CORE::execute(){
 	
@@ -168,21 +172,23 @@ void CORE::run_cycle()
 	// Perform instruction execute step
 	execute();
 	
-	//Print some of the registers values for debugging
-	//cout<<"PC: "<<PC<<endl;
-	//cout<<"$VR "<<reg[1]<<endl;
-	//cout<<"$AG0 "<<reg[2]<<endl;
-	//cout<<"$TM0 "<<reg[5]<<endl;
-	//cout<<"$TM1 "<<reg[6]<<endl;
-	//cout<<"$TM2 "<<reg[7]<<endl;
-	//cout<<"$TM3 "<<reg[8]<<endl;
-	//cout<<"$TM4 "<<reg[9]<<endl;
-	//cout<<"$TM5 "<<reg[10]<<endl;
-	//cout<<"$TM6 "<<reg[11]<<endl;
-	//cout<<"$SP "<<reg[14]<<endl;
-	//cout<<"$RA "<<reg[15]<<endl;
-	//cout<<"Stack0: "<<mem[0x181]<<endl;
-	//cout<<"Stack1: "<<mem[0x182]<<endl;
+	#ifdef DEBUG
+		//Print some of the registers values for debugging
+		cout<<"PC: "<<PC<<endl;
+		cout<<"$VR "<<reg[1]<<endl;
+		cout<<"$AG0 "<<reg[2]<<endl;
+		cout<<"$TM0 "<<reg[5]<<endl;
+		cout<<"$TM1 "<<reg[6]<<endl;
+		cout<<"$TM2 "<<reg[7]<<endl;
+		cout<<"$TM3 "<<reg[8]<<endl;
+		cout<<"$TM4 "<<reg[9]<<endl;
+		cout<<"$TM5 "<<reg[10]<<endl;
+		cout<<"$TM6 "<<reg[11]<<endl;
+		cout<<"$SP "<<reg[14]<<endl;
+		cout<<"$RA "<<reg[15]<<endl;
+		cout<<"Stack0: "<<mem[0x181]<<endl;
+		cout<<"Stack1: "<<mem[0x182]<<endl;
+	#endif
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////// SUPPORTING FUNCTIONS ///////////////////////////////////////
@@ -195,7 +201,7 @@ WORD BIT_RANGE(WORD instr, WORD hi, WORD lo)
 // Function that sign extends the 4-bit immediate number to a  WORD (16-bit number).
 WORD SIGN_EXTEND(WORD x)
 {
-	WORD y = ((x >> 3)==1 ? -(0b0111&x) : (0b0111&x));
+	WORD y = ((x >> 3)==1 ? (0b1111111111110000|x) : (0b0000000000001111&x));
 	return y;
 }
 // Function that zero extends the 4-bit immediate number to a  WORD (16-bit number).
